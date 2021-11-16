@@ -2,15 +2,20 @@
 from aiogram import Bot, types
 from aiogram.dispatcher import Dispatcher
 from aiogram.types import message
+from aiogram.types.base import String
 from aiogram.utils import executor
 from configs import TOKEN   
+import os
+import json
+import string
+
 # from client import  commands_start 
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot) 
 
 async def on_startup(_):
-    print('bot onlibe')
+    print('bot online')
 
 
 
@@ -23,9 +28,11 @@ async def command_start(message : types.Message):
     except:
         await message.reply('Общение с ботом через ЛС, написать : \nhttps://t.me/Pizza_HBot')    
 
+
 @dp.message_handler(commands=['Режим_роботи'])
 async def pizza_open_command(message : types.Message):
 	await bot.send_message(message.from_user.id, 'пн-чт з 9:00 до 20:00, пт-сб з 10:00 до 20:00, недiля вихiдний')
+
 
 @dp.message_handler(commands=['Розташування'])
 async def pizza_place_command(message : types.Message):
@@ -33,18 +40,21 @@ async def pizza_place_command(message : types.Message):
 
 
 
-@dp.message_handler(content_types=['text'])
-async def get_text_messages(message: types.Message):
-   if message.text.lower() == 'привет':
-       await message.answer('Привет!')
-   else:
-       await message.answer('Не понимаю, что это значит.')
+# @dp.message_handler(content_types=['text'])
+# async def get_text_messages(message: types.Message):
+#    if message.text.lower() == 'привет':
+#        await message.answer('Привет!')
+#    else:
+#        await message.answer('Не понимаю, что это значит.')
+
 
 
 @dp.message_handler()
 async def  echo(message : types.Message):
-    await message.answer("///")
-    
+   if{i.lower().translate(str.maketrans('','', string.punctuation)) for i in message.text.split(' ')}\
+       .intersection(set(json.load(open('cenz.json')))) != set():
+       await message.reply('Нецензурний вираз')
+       await message.delete()
 
 
 executor.start_polling(dp, skip_updates=True, on_startup=on_startup)
