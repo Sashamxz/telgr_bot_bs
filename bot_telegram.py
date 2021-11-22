@@ -51,8 +51,8 @@ async def pizza_place_command(message : types.Message):
 
 @dp.message_handler()
 async def  echo(message : types.Message):
-   if{i.lower().translate(str.maketrans('','', string.punctuation)) for i in message.text.split(' ')}\
-       .intersection(set(json.load(open('cenz.json')))) != set():
+   if {i.lower().translate(str.maketrans('','', string.punctuation)) for i in message.text.split(' ')}\
+       .intersection(set(json.load(open('we.json')))) != set():
        await message.reply('Нецензурний вираз')
        await message.delete()
 
