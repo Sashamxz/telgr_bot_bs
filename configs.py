@@ -11,5 +11,5 @@ if os.path.exists(dotenv_path):
 
 TOKEN = os.environ.get('BOT_TOKEN')
 
-print(TOKEN)
+
     
