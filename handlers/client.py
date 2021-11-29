@@ -1,13 +1,13 @@
 from aiogram import types
 from aiogram.dispatcher.dispatcher import Dispatcher
 from create_bot import dp, bot
-
+from keyboards import kb_client
 
 @dp.message_handler(commands=['start', 'help'])
 async def command_start(message : types.Message):
     try:
         
-        await bot.send_message(message.from_user.id, f'Я бот. Hello, {message.from_user.first_name}')
+        await bot.send_message(message.from_user.id, f'Я бот. Hello, {message.from_user.first_name}', reply_markup=kb_client)
         await message.delete()
     except:
         await message.reply('Общение с ботом через ЛС, написать : \nhttps://t.me/Pizza_HBot')    
@@ -22,6 +22,10 @@ async def pizza_open_command(message : types.Message):
 async def pizza_place_command(message : types.Message):
 	await bot.send_message(message.from_user.id, 'Street')
 
+
+@dp.message_handler(commands=['Меню'])
+async def pizza_place_command(message : types.Message):
+	await bot.send_message(message.from_user.id, 'Меню')
 
 
 def registrate_hndl_client(dp : Dispatcher):
