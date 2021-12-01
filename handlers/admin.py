@@ -12,10 +12,10 @@ class FSMAdmin(StatesGroup):
     price = State()
 
 #загрузка нового пункта меню
-@dp.message_handler(commands='Завантажити', state=None)
+# @dp.message_handler(commands='Завантажити', state=None)
 async def cm_start(message : types.Message):
     await FSMAdmin.photo.set()
-    await message.reply('Завантажити фото')
+    await message.reply('Завантажити фото') 
 
 #ответ от пользоваетеля
 # @dp.message_handler(content_types=['photo'], state=FSMAdmin.photo)
@@ -36,7 +36,7 @@ async def load_name(message : types.Message, state: FSMContext):
 
 
 #тритий ответ от пользователя 
-@dp.message_handler(state=FSMAdmin.description)
+# @dp.message_handler(state=FSMAdmin.description)
 async def load_description(message : types.Message, state: FSMContext):
     async with state.proxy() as data:
         data['description'] = message.text
@@ -45,7 +45,7 @@ async def load_description(message : types.Message, state: FSMContext):
 
 
 #тритий ответ от пользователя 
-@dp.message_handler(state=FSMAdmin.price)
+# @dp.message_handler(state=FSMAdmin.price)
 async def load_price(message : types.Message, state: FSMContext):
     async with state.proxy() as data:
         data['price'] = float(message.text)

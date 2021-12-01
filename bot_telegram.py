@@ -9,7 +9,8 @@ from create_bot import dp
 async def on_startup(_):
     print('bot online')
 
-from handlers import client, admin, others
+from handlers import  admin, client, others
+
 
 client.registrate_hndl_client(dp)
 admin.registrate_hndl_admin(dp)
