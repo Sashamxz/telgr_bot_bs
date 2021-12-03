@@ -12,7 +12,7 @@ async def on_startup(_):
 from handlers import  admin, client, others
 
 
-# client.registrate_hndl_client(dp)
+client.registrate_hndl_client(dp)
 admin.registrate_hndl_admin(dp)
 others.registrate_hndl_other(dp)
 

@@ -1,8 +1,10 @@
+from typing import Text
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram import  types, Dispatcher
-from create_bot import dp
-
+# from aiogram.utils.mixins import Type
+from create_bot import dp                
+from aiogram.dispatcher.filters import Text
 
 
 
@@ -14,10 +16,20 @@ class FSMAdmin(StatesGroup):
     price = State()
 
 #загрузка нового пункта меню
-@dp.message_handler(commands='Завантажити', state=None)
 async def cm_start(message : types.Message):
     await FSMAdmin.photo.set()
     await message.reply('Завантажити фото') 
+
+# @dp.message_handler(state='*', commands='отмена')
+# @dp.message_handler(Text(equals='отмена', ignore_case=True), state='*')
+async def cancel_hndl(message: types.Message, state: FSMContext):
+    current_state = await state.get_state()
+    if current_state is None:
+        return 0
+    await state.finish()
+    await message.reply('ok')    
+
+
 
 #ответ от пользоваетеля
 # @dp.message_handler(content_types=['photo'], state=FSMAdmin.photo)
@@ -64,3 +76,5 @@ def registrate_hndl_admin(dp : Dispatcher):
     dp.register_message_handler(load_name, state=FSMAdmin.name)
     dp.register_message_handler(load_description, state=FSMAdmin.description)
     dp.register_message_handler(load_price, state=FSMAdmin.price)
+    dp.register_message_handler(cancel_hndl, state='*', commands='Відміна')
+    dp.register_message_handler(cancel_hndl,Text(equals='Відміна', ignore_case = True), state='*')
