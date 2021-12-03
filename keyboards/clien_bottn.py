@@ -9,4 +9,4 @@ b5 = KeyboardButton('Де я',request_location=True)
 
 
 kb_client = ReplyKeyboardMarkup(resize_keyboard=True)
-kb_client.row(b1,b2,b3).add(b4).add(b5)
+kb_client.row(b1,b3).add(b2).add(b5).add(b4)

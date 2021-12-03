@@ -5,6 +5,8 @@ from create_bot import dp
 
 
 
+
+
 class FSMAdmin(StatesGroup):
     photo = State()
     name = State()
@@ -12,7 +14,7 @@ class FSMAdmin(StatesGroup):
     price = State()
 
 #загрузка нового пункта меню
-# @dp.message_handler(commands='Завантажити', state=None)
+@dp.message_handler(commands='Завантажити', state=None)
 async def cm_start(message : types.Message):
     await FSMAdmin.photo.set()
     await message.reply('Завантажити фото') 
@@ -52,6 +54,7 @@ async def load_price(message : types.Message, state: FSMContext):
         async with state.proxy() as data:
             await message.reply(str(data))
     await state.finish()
+    await message.reply('ok')
 
 
 
