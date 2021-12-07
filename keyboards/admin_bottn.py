@@ -1,8 +1,8 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
 
-b1 = KeyboardButton('/Завантажити')
+button_load = KeyboardButton('/Завантажити')
+button_delete = KeyboardButton('/Видалити')
 
 
 
-kb_admin = ReplyKeyboardMarkup(resize_keyboard=True)
-kb_admin.row(b1)
+kb_case_admin = ReplyKeyboardMarkup(resize_keyboard=True).add(button_load).add(button_delete)

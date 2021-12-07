@@ -3,11 +3,17 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram import   types
 from aiogram.dispatcher.dispatcher import Dispatcher
+from aiogram.types import reply_keyboard
 from create_bot import bot, dp                
 from aiogram.dispatcher.filters import Text
+from data_base import sqlite_db
+from data_base.sqlite_db import sql_add_command
+from keyboards import admin_bottn
+
 
 
 ID = None
+
 
 class FSMAdmin(StatesGroup):
     photo = State()
@@ -20,7 +26,7 @@ class FSMAdmin(StatesGroup):
 async def make_changes_command(message: types.Message):
     global ID
     ID = message.from_user.id
-    await bot.send_message(message.from_user.id, 'Що потрібно?')
+    await bot.send_message(message.from_user.id, 'Перевірку пройдено', reply_keyboard= admin_bottn.kb_case_admin)
     await message.delete()    
 
 #загрузка нового пункта меню
@@ -33,30 +39,33 @@ async def cm_start(message : types.Message):
 # @dp.message_handler(state='*', commands='отмена')
 # @dp.message_handler(Text(equals='отмена', ignore_case=True), state='*')
 async def cancel_hndl(message: types.Message, state: FSMContext):
-    current_state = await state.get_state()
-    if current_state is None:
-        return 0
-    await state.finish()
-    await message.reply('ok')    
+    if message.from_user.id == ID:      
+        current_state = await state.get_state()
+        if current_state is None:
+            return 0
+        await state.finish()
+        await message.reply('ok')    
 
 
 
 #ответ от пользоваетеля
 # @dp.message_handler(content_types=['photo'], state=FSMAdmin.photo)
 async def load_photo(message : types.Message, state: FSMContext):
-    async with state.proxy() as data:
-        data['photo'] = message.photo[0].file_id
-    await FSMAdmin.next()
-    await message.reply('Ввести назву:')    
+    if message.from_user.id == ID:      
+        async with state.proxy() as data:
+            data['photo'] = message.photo[0].file_id
+        await FSMAdmin.next()
+        await message.reply('Ввести назву:')    
 
 
 #второй ответ от пользователя 
 # @dp.message_handler(state=FSMAdmin.name)
 async def load_name(message : types.Message, state: FSMContext):
-    async with state.proxy() as data:
-        data['name'] = message.text
-    await FSMAdmin.next()
-    await message.reply('Ввести описання:')    
+    if message.from_user.id == ID:      
+        async with state.proxy() as data:
+            data['name'] = message.text
+        await FSMAdmin.next()
+        await message.reply('Ввести описання:')    
 
 
 #тритий ответ от пользователя 
@@ -73,10 +82,9 @@ async def load_description(message : types.Message, state: FSMContext):
 async def load_price(message : types.Message, state: FSMContext):
     async with state.proxy() as data:
         data['price'] = float(message.text)
-        async with state.proxy() as data:
-            await message.reply(str(data))
+    await sqlite_db.sql_add_command(state)
     await state.finish()
-    await message.reply('ok')
+    
 
 
 
