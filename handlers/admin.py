@@ -1,13 +1,13 @@
 from typing import Text
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
-from aiogram import  types, Dispatcher
-# from aiogram.utils.mixins import Type
-from create_bot import dp                
+from aiogram import   types
+from aiogram.dispatcher.dispatcher import Dispatcher
+from create_bot import bot, dp                
 from aiogram.dispatcher.filters import Text
 
 
-
+ID = None
 
 class FSMAdmin(StatesGroup):
     photo = State()
@@ -15,10 +15,20 @@ class FSMAdmin(StatesGroup):
     description = State()
     price = State()
 
+#Получаем ID текущего модератора         
+@dp.message_handler(commands=['moderator'], is_chat_admin=True) 
+async def make_changes_command(message: types.Message):
+    global ID
+    ID = message.from_user.id
+    await bot.send_message(message.from_user.id, 'Що потрібно?')
+    await message.delete()    
+
 #загрузка нового пункта меню
+@dp.message_handler(commands='Завантажити', state=None)
 async def cm_start(message : types.Message):
-    await FSMAdmin.photo.set()
-    await message.reply('Завантажити фото') 
+    if message.from_user.id == ID:    
+        await FSMAdmin.photo.set()
+        await message.reply('Завантажити фото') 
 
 # @dp.message_handler(state='*', commands='отмена')
 # @dp.message_handler(Text(equals='отмена', ignore_case=True), state='*')
@@ -72,9 +82,10 @@ async def load_price(message : types.Message, state: FSMContext):
 
 def registrate_hndl_admin(dp : Dispatcher):
     dp.register_message_handler(cm_start, commands=['Завантажити'], state=None)    
+    dp.register_message_handler(cancel_hndl, state='*', commands='Відміна')
+    dp.register_message_handler(cancel_hndl,Text(equals='Відміна', ignore_case = True), state='*')
     dp.register_message_handler(load_photo, content_types=['photo'], state= FSMAdmin.photo)
     dp.register_message_handler(load_name, state=FSMAdmin.name)
     dp.register_message_handler(load_description, state=FSMAdmin.description)
     dp.register_message_handler(load_price, state=FSMAdmin.price)
-    dp.register_message_handler(cancel_hndl, state='*', commands='Відміна')
-    dp.register_message_handler(cancel_hndl,Text(equals='Відміна', ignore_case = True), state='*')
+    dp.register_message_handler(make_changes_command, commands=['moderator'], is_chat_admin=True)    
