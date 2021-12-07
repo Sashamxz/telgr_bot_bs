@@ -2,6 +2,10 @@ from aiogram import types
 from aiogram.dispatcher.dispatcher import Dispatcher
 from create_bot import dp, bot
 from keyboards import kb_client
+from data_base import sqlite_db
+
+
+
 
 @dp.message_handler(commands=['start', 'help'])
 async def command_start(message : types.Message):
@@ -24,12 +28,12 @@ async def pizza_place_command(message : types.Message):
 
 
 @dp.message_handler(commands=['Меню'])
-async def pizza_place_command(message : types.Message):
-	await bot.send_message(message.from_user.id, 'Меню')
+async def pizza_menu_command(message : types.Message):
+	sqlite_db.sql_read(message)
 
 
 def registrate_hndl_client(dp : Dispatcher):
     dp.register_message_handler(command_start, commands=['start', 'help'])    
     dp.register_message_handler(pizza_open_command, commands=['Режим_роботи'])
     dp.register_message_handler(pizza_place_command, commands=['Розташування'])
-  
+    dp.register_message_handler(pizza_menu_command, commands=['Меню'])
