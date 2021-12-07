@@ -10,7 +10,7 @@ def sql_start():
     if base:
         print('Подключение к базе данных успешно выполнено')
 
-    base.execute('CREATE TABLE IF NOT EXIST menu(img TEXT, name TEXT PRIMARY KEY, description TEXT, price TEXT)')
+    base.execute('CREATE TABLE IF NOT EXISTS menu(img TEXT, name TEXT PRIMARY KEY, description TEXT, price TEXT)')
     base.commit()
 
 

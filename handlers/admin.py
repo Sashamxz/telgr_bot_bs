@@ -15,19 +15,22 @@ from keyboards import admin_bottn
 ID = None
 
 
+
 class FSMAdmin(StatesGroup):
     photo = State()
     name = State()
     description = State()
     price = State()
 
+
 #Получаем ID текущего модератора         
 @dp.message_handler(commands=['moderator'], is_chat_admin=True) 
 async def make_changes_command(message: types.Message):
     global ID
     ID = message.from_user.id
-    await bot.send_message(message.from_user.id, 'Перевірку пройдено', reply_keyboard= admin_bottn.kb_case_admin)
+    await bot.send_message(message.from_user.id, 'Перевірку пройдено', reply_markup= admin_bottn.kb_case_admin)
     await message.delete()    
+
 
 #загрузка нового пункта меню
 @dp.message_handler(commands='Завантажити', state=None)
@@ -35,6 +38,7 @@ async def cm_start(message : types.Message):
     if message.from_user.id == ID:    
         await FSMAdmin.photo.set()
         await message.reply('Завантажити фото') 
+
 
 # @dp.message_handler(state='*', commands='отмена')
 # @dp.message_handler(Text(equals='отмена', ignore_case=True), state='*')
@@ -45,7 +49,6 @@ async def cancel_hndl(message: types.Message, state: FSMContext):
             return 0
         await state.finish()
         await message.reply('ok')    
-
 
 
 #ответ от пользоваетеля
@@ -85,7 +88,6 @@ async def load_price(message : types.Message, state: FSMContext):
     await sqlite_db.sql_add_command(state)
     await state.finish()
     
-
 
 
 def registrate_hndl_admin(dp : Dispatcher):
