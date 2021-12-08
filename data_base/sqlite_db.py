@@ -8,7 +8,7 @@ def sql_start():
     base = sq.connect('pizza_menu.db')
     cur = base.cursor()
     if base:
-        print('Подключение к базе данных успешно выполнено')
+        print('connect to database - successful')
 
     base.execute('CREATE TABLE IF NOT EXISTS menu(img TEXT, name TEXT PRIMARY KEY, description TEXT, price TEXT)')
     base.commit()
