@@ -87,7 +87,8 @@ async def load_price(message : types.Message, state: FSMContext):
         data['price'] = float(message.text)
     await sqlite_db.sql_add_command(state)
     await state.finish()
-    
+    await bot.send_message(message.from_user.id, 'Успішно додано.')
+
 
 
 def registrate_hndl_admin(dp : Dispatcher):

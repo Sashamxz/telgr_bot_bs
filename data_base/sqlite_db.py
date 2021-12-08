@@ -24,4 +24,4 @@ async def sql_add_command(state):
 
 async def sql_read(message):
     for ret in cur.execute('SELECT * FROM menu').fetchall():
-        await bot.send_photo(message.from_user.id, ret[0], f'{ret[1]}\nОпис; {ret[2]}\n Ціна {ret[-1]}')
+        await bot.send_photo(message.from_user.id, ret[0], f'{ret[1]}\nОпис: {ret[2]}\nЦіна {ret[-1]}')

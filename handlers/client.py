@@ -29,7 +29,7 @@ async def pizza_place_command(message : types.Message):
 
 @dp.message_handler(commands=['Меню'])
 async def pizza_menu_command(message : types.Message):
-	sqlite_db.sql_read(message)
+	await sqlite_db.sql_read(message)
 
 
 def registrate_hndl_client(dp : Dispatcher):
