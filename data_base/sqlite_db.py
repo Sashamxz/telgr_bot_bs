@@ -7,6 +7,7 @@ def sql_start():
     global base, cur
     base = sq.connect('pizza_menu.db')
     cur = base.cursor()
+    
     if base:
         print('connect to database - successful')
 

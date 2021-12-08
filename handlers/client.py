@@ -14,7 +14,7 @@ async def command_start(message : types.Message):
         await bot.send_message(message.from_user.id, f'Я бот. Hello, {message.from_user.first_name}', reply_markup=kb_client)
         await message.delete()
     except:
-        await message.reply('Общение с ботом через ЛС, написать : \nhttps://t.me/Pizza_HBot')    
+        await message.reply('Общение с ботом через ЛС, написать: \nhttps://t.me/Pizza_HBot')    
 
 
 @dp.message_handler(commands=['Режим_роботи'])
