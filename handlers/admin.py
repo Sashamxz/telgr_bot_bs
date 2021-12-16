@@ -3,12 +3,11 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram import   types
 from aiogram.dispatcher.dispatcher import Dispatcher
-from aiogram.types import reply_keyboard
 from create_bot import bot, dp                
 from aiogram.dispatcher.filters import Text
 from data_base import sqlite_db
-from data_base.sqlite_db import sql_add_command
 from keyboards import admin_bottn
+from aiogram.types import  InlineKeyboardButton, InlineKeyboardMarkup , reply_keyboard
 
 
 
@@ -49,6 +48,22 @@ async def cancel_hndl(message: types.Message, state: FSMContext):
             return 0
         await state.finish()
         await message.reply('ok')    
+
+
+@dp.callback_query_handler(lambda x: x.data and  x.data.startswith('del '))
+async def del_callback_run(callback_query: types.CallbackQuery):
+    await sqlite_db.sql_delete_command(callback_query.data.replace('del ', ''))
+    await callback_query.answer(text=f'{callback_query.data.replace("dell ", "")} видалено.',show_alert=True)
+
+
+@dp.message_handler(commands='Видалити')
+async def delete_item(message: types.Message):
+    if message.from_user.id == ID:
+        read = await sqlite_db.sql_read2()
+        for ret in read:
+            await bot.send_photo(message.from_user.id, ret[0], f'{ret[1]}\nОпис: {ret[2]}\nЦіна {ret[-1]}')
+            await bot.send_message(message.from_user.id, text='^^^', reply_markup=InlineKeyboardMarkup().\
+                add(InlineKeyboardButton(f'Видалити {ret[1]}', callback_data=f'del {ret[1]}'))) 
 
 
 #ответ от пользоваетеля
