@@ -2,7 +2,6 @@
 
 from aiogram.utils import executor
 from create_bot import dp
-
 from data_base import sqlite_db
 
 

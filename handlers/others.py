@@ -7,7 +7,7 @@ from create_bot import dp
 @dp.message_handler()
 async def  echo(message : types.Message):
    if {i.lower().translate(str.maketrans('','', string.punctuation)) for i in message.text.split(' ')}\
-       .intersection(set(json.load(open('we.json')))) != set():
+       .intersection(set(json.load(open('cenz.json')))) != set():
        await message.reply('Нецензурний вираз')
        await message.delete()
 

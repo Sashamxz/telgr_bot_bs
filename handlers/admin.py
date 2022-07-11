@@ -8,7 +8,7 @@ from aiogram.dispatcher.filters import Text
 from data_base import sqlite_db
 from keyboards import admin_bottn
 from aiogram.types import  InlineKeyboardButton, InlineKeyboardMarkup , reply_keyboard
-
+from keyboards import kb_client
 
 
 ID = None
@@ -27,8 +27,11 @@ class FSMAdmin(StatesGroup):
 async def make_changes_command(message: types.Message):
     global ID
     ID = message.from_user.id
-    await bot.send_message(message.from_user.id, 'Перевірку пройдено', reply_markup= admin_bottn.kb_case_admin)
+    await bot.send_message(message.from_user.id, 'Вхід в панель адміністратора виконано', reply_markup= admin_bottn.kb_case_admin)
     await message.delete()    
+
+ 
+
 
 
 #загрузка нового пункта меню
@@ -39,8 +42,7 @@ async def cm_start(message : types.Message):
         await message.reply('Завантажити фото') 
 
 
-# @dp.message_handler(state='*', commands='отмена')
-# @dp.message_handler(Text(equals='отмена', ignore_case=True), state='*')
+
 async def cancel_hndl(message: types.Message, state: FSMContext):
     if message.from_user.id == ID:      
         current_state = await state.get_state()
@@ -50,10 +52,26 @@ async def cancel_hndl(message: types.Message, state: FSMContext):
         await message.reply('ok')    
 
 
+
+@dp.message_handler(commands=['Вийти'],state='*')
+async def exit_admin(message: types.Message, state: FSMContext):
+    curent_state = await  state.get_state()
+    
+    if curent_state is None:
+        await bot.send_message(message.from_user.id, 'Вихід з меню адмінстратора1 ', reply_markup=kb_client)
+    
+    else:
+        await cancel_hndl(message, state)
+        await bot.send_message(message.from_user.id, 'Вихід з меню адмінстратора2 ', reply_markup=kb_client)
+        await message.reply('створення об\'єкта скасовано')
+
+
+
 @dp.callback_query_handler(lambda x: x.data and  x.data.startswith('del '))
 async def del_callback_run(callback_query: types.CallbackQuery):
     await sqlite_db.sql_delete_command(callback_query.data.replace('del ', ''))
     await callback_query.answer(text=f'{callback_query.data.replace("dell ", "")} видалено.',show_alert=True)
+
 
 
 @dp.message_handler(commands='Видалити')
@@ -67,7 +85,7 @@ async def delete_item(message: types.Message):
 
 
 #ответ от пользоваетеля
-# @dp.message_handler(content_types=['photo'], state=FSMAdmin.photo)
+@dp.message_handler(content_types=['photo'], state=FSMAdmin.photo)
 async def load_photo(message : types.Message, state: FSMContext):
     if message.from_user.id == ID:      
         async with state.proxy() as data:
@@ -76,8 +94,8 @@ async def load_photo(message : types.Message, state: FSMContext):
         await message.reply('Ввести назву:')    
 
 
-#второй ответ от пользователя 
-# @dp.message_handler(state=FSMAdmin.name)
+#2n ответ от пользователя 
+@dp.message_handler(state=FSMAdmin.name)
 async def load_name(message : types.Message, state: FSMContext):
     if message.from_user.id == ID:      
         async with state.proxy() as data:
@@ -86,8 +104,8 @@ async def load_name(message : types.Message, state: FSMContext):
         await message.reply('Ввести описання:')    
 
 
-#тритий ответ от пользователя 
-# @dp.message_handler(state=FSMAdmin.description)
+#3n ответ от пользователя 
+@dp.message_handler(state=FSMAdmin.description)
 async def load_description(message : types.Message, state: FSMContext):
     async with state.proxy() as data:
         data['description'] = message.text
@@ -95,14 +113,24 @@ async def load_description(message : types.Message, state: FSMContext):
     await message.reply('Вкажіть ціну:')    
 
 
-#тритий ответ от пользователя 
-# @dp.message_handler(state=FSMAdmin.price)
+#4n ответ от пользователя 
+@dp.message_handler(state=FSMAdmin.price)
 async def load_price(message : types.Message, state: FSMContext):
     async with state.proxy() as data:
-        data['price'] = float(message.text)
+        if message.text.isdigit(): 
+            data['price'] = float(message.text)
+        else:
+            await bot.send_message(message.from_user.id, 'введіть коректну ціну ')   
     await sqlite_db.sql_add_command(state)
     await state.finish()
     await bot.send_message(message.from_user.id, 'Успішно додано.')
+
+
+
+
+
+
+
 
 
 
@@ -110,8 +138,11 @@ def registrate_hndl_admin(dp : Dispatcher):
     dp.register_message_handler(cm_start, commands=['Завантажити'], state=None)    
     dp.register_message_handler(cancel_hndl, state='*', commands='Відміна')
     dp.register_message_handler(cancel_hndl,Text(equals='Відміна', ignore_case = True), state='*')
+    dp.register_message_handler(exit_admin,  state='*', commands='Вийти')
+    dp.register_message_handler(exit_admin, Text(equals='Вийти', ignore_case = True),  state='*')
     dp.register_message_handler(load_photo, content_types=['photo'], state= FSMAdmin.photo)
     dp.register_message_handler(load_name, state=FSMAdmin.name)
     dp.register_message_handler(load_description, state=FSMAdmin.description)
     dp.register_message_handler(load_price, state=FSMAdmin.price)
     dp.register_message_handler(make_changes_command, commands=['moderator'], is_chat_admin=True)    
+   
