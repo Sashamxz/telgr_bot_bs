@@ -1,8 +1,7 @@
 from typing import Text
+from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
-from aiogram import   types
-from aiogram.dispatcher.dispatcher import Dispatcher
 from create_bot import bot, dp                
 from aiogram.dispatcher.filters import Text
 from data_base import sqlite_db
@@ -22,6 +21,7 @@ class FSMAdmin(StatesGroup):
     price = State()
 
 
+
 #Получаем ID текущего модератора         
 @dp.message_handler(commands=['moderator'], is_chat_admin=True) 
 async def make_changes_command(message: types.Message):
@@ -34,15 +34,14 @@ async def make_changes_command(message: types.Message):
 
 
 
-#загрузка нового пункта меню
-@dp.message_handler(commands='Завантажити', state=None)
+#вхід в "машину стану" , завантаження фото 
 async def cm_start(message : types.Message):
     if message.from_user.id == ID:    
         await FSMAdmin.photo.set()
         await message.reply('Завантажити фото') 
 
 
-
+#передчасний вихід з "машини станів" без збереження 
 async def cancel_hndl(message: types.Message, state: FSMContext):
     if message.from_user.id == ID:      
         current_state = await state.get_state()
@@ -53,7 +52,7 @@ async def cancel_hndl(message: types.Message, state: FSMContext):
 
 
 
-@dp.message_handler(commands=['Вийти'],state='*')
+#вихід з панелі адміністратора з передчасним  завершенням  всіх незбережених форм
 async def exit_admin(message: types.Message, state: FSMContext):
     curent_state = await  state.get_state()
     
@@ -67,14 +66,14 @@ async def exit_admin(message: types.Message, state: FSMContext):
 
 
 
-@dp.callback_query_handler(lambda x: x.data and  x.data.startswith('del '))
+
 async def del_callback_run(callback_query: types.CallbackQuery):
     await sqlite_db.sql_delete_command(callback_query.data.replace('del ', ''))
     await callback_query.answer(text=f'{callback_query.data.replace("dell ", "")} видалено.',show_alert=True)
 
 
 
-@dp.message_handler(commands='Видалити')
+#видалення  позиції з бази данних  
 async def delete_item(message: types.Message):
     if message.from_user.id == ID:
         read = await sqlite_db.sql_read2()
@@ -84,8 +83,7 @@ async def delete_item(message: types.Message):
                 add(InlineKeyboardButton(f'Видалити {ret[1]}', callback_data=f'del {ret[1]}'))) 
 
 
-#ответ от пользоваетеля
-@dp.message_handler(content_types=['photo'], state=FSMAdmin.photo)
+#відповідь від користувача , машина стану "назва"
 async def load_photo(message : types.Message, state: FSMContext):
     if message.from_user.id == ID:      
         async with state.proxy() as data:
@@ -94,8 +92,7 @@ async def load_photo(message : types.Message, state: FSMContext):
         await message.reply('Ввести назву:')    
 
 
-#2n ответ от пользователя 
-@dp.message_handler(state=FSMAdmin.name)
+#2th відповідь від користувача
 async def load_name(message : types.Message, state: FSMContext):
     if message.from_user.id == ID:      
         async with state.proxy() as data:
@@ -104,8 +101,7 @@ async def load_name(message : types.Message, state: FSMContext):
         await message.reply('Ввести описання:')    
 
 
-#3n ответ от пользователя 
-@dp.message_handler(state=FSMAdmin.description)
+#3th відповідь від користувача
 async def load_description(message : types.Message, state: FSMContext):
     async with state.proxy() as data:
         data['description'] = message.text
@@ -113,7 +109,7 @@ async def load_description(message : types.Message, state: FSMContext):
     await message.reply('Вкажіть ціну:')    
 
 
-#4n ответ от пользователя 
+#4th відповідь від користувача  
 @dp.message_handler(state=FSMAdmin.price)
 async def load_price(message : types.Message, state: FSMContext):
     async with state.proxy() as data:
@@ -127,19 +123,14 @@ async def load_price(message : types.Message, state: FSMContext):
 
 
 
-
-
-
-
-
-
-
 def registrate_hndl_admin(dp : Dispatcher):
-    dp.register_message_handler(cm_start, commands=['Завантажити'], state=None)    
-    dp.register_message_handler(cancel_hndl, state='*', commands='Відміна')
-    dp.register_message_handler(cancel_hndl,Text(equals='Відміна', ignore_case = True), state='*')
+    dp.register_message_handler(cm_start, commands='Завантажити', state=None)    
+    dp.register_message_handler(cancel_hndl, state='*', commands='Відмінити')
+    dp.register_message_handler(cancel_hndl,Text(equals='Відмінити', ignore_case = True), state='*')
     dp.register_message_handler(exit_admin,  state='*', commands='Вийти')
     dp.register_message_handler(exit_admin, Text(equals='Вийти', ignore_case = True),  state='*')
+    dp.register_callback_query_handler(del_callback_run, lambda x: x.data and x.data.startswith('del '))
+    dp.register_message_handler(delete_item, commands='Видалити')
     dp.register_message_handler(load_photo, content_types=['photo'], state= FSMAdmin.photo)
     dp.register_message_handler(load_name, state=FSMAdmin.name)
     dp.register_message_handler(load_description, state=FSMAdmin.description)

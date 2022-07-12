@@ -9,9 +9,8 @@ from aiogram.contrib.middlewares.logging import LoggingMiddleware
 storage=RedisStorage2(
     host=config_redis.get('REDIS_HOST'), 
     port=config_redis.get('REDIS_PORT'),
-    db=config_redis.get('REDIS_DB'),
+    db=int(config_redis.get('REDIS_DB')),
     password=config_redis.get('REDIS_PASSWORD'),
-    storage = config_redis.get('REDIS_STORAGE')
 )
 
 
