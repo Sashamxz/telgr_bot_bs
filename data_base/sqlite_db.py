@@ -30,6 +30,11 @@ async def sql_read2():
     return cur.execute('SELECT * FROM menu').fetchall()
 
 
+async def sql_change_command(data):
+    cur.execute('UPDATE menu WHERE name == ?', (data,))
+    base.commit()
+
+
 async def sql_delete_command(data):
     cur.execute('DELETE FROM menu WHERE name == ?', (data,))
     base.commit()

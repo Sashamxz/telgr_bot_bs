@@ -35,6 +35,7 @@ async def make_changes_command(message: types.Message):
 
 
 #вхід в "машину стану" , завантаження фото 
+@dp.message_handler(text='Завантажити')
 async def cm_start(message : types.Message):
     if message.from_user.id == ID:    
         await FSMAdmin.photo.set()
@@ -53,15 +54,16 @@ async def cancel_hndl(message: types.Message, state: FSMContext):
 
 
 #вихід з панелі адміністратора з передчасним  завершенням  всіх незбережених форм
+@dp.message_handler(text='Вийти')
 async def exit_admin(message: types.Message, state: FSMContext):
     curent_state = await  state.get_state()
     
     if curent_state is None:
-        await bot.send_message(message.from_user.id, 'Вихід з меню адмінстратора1 ', reply_markup=kb_client)
+        await bot.send_message(message.from_user.id, 'Вихід з меню адмінстратора-1 ', reply_markup=kb_client)
     
     else:
         await cancel_hndl(message, state)
-        await bot.send_message(message.from_user.id, 'Вихід з меню адмінстратора2 ', reply_markup=kb_client)
+        await bot.send_message(message.from_user.id, 'Вихід з меню адмінстратора-2 ', reply_markup=kb_client)
         await message.reply('створення об\'єкта скасовано')
 
 
@@ -73,7 +75,20 @@ async def del_callback_run(callback_query: types.CallbackQuery):
 
 
 
+@dp.message_handler(text='Редагувати')
+async def edit_data(message: types.Message):
+    if message.from_user.id == ID:
+        read = await sqlite_db.sql_read2()
+        for ret in read:
+            await bot.send_photo(message.from_user.id, ret[0], f'{ret[1]}\nОпис: {ret[2]}\nЦіна {ret[-1]}')
+            await bot.send_message(message.from_user.id, text='^^^', reply_markup=InlineKeyboardMarkup().\
+                add(InlineKeyboardButton('Редагувати')) )
+    await  sqlite_db.sql_change_command()
+
+
+
 #видалення  позиції з бази данних  
+@dp.message_handler(text='Видалити')
 async def delete_item(message: types.Message):
     if message.from_user.id == ID:
         read = await sqlite_db.sql_read2()
@@ -110,7 +125,6 @@ async def load_description(message : types.Message, state: FSMContext):
 
 
 #4th відповідь від користувача  
-@dp.message_handler(state=FSMAdmin.price)
 async def load_price(message : types.Message, state: FSMContext):
     async with state.proxy() as data:
         if message.text.isdigit(): 

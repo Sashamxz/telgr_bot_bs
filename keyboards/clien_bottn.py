@@ -4,7 +4,7 @@ b1 = KeyboardButton('Розташування')
 b2 = KeyboardButton('Режим_роботи')
 b3 = KeyboardButton ('Меню')
 b4 = KeyboardButton('Номер телефону', request_contact=True)
-b5 = KeyboardButton('Де я',request_location=True)
+b5 = KeyboardButton('Де я', request_location=True)
 
 
 
